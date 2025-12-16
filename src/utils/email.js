@@ -39,16 +39,15 @@
 // };
 
 
-
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
-  secure: false, // TLS
+  secure: false, // STARTTLS
   auth: {
-    user: "apikey",
-    pass: process.env.BREVO_API_KEY,
+    user: process.env.BREVO_SMTP_USER, // must be 'apikey'
+    pass: process.env.BREVO_SMTP_PASS, // xsmtpsib-...
   },
 });
 
@@ -62,19 +61,17 @@ transporter.verify((err) => {
 
 exports.sendEmail = async (to, otp) => {
   const mailOptions = {
-    from: `"Joy Brews" <no-reply@joybrews.com>`,
+    from: `"ShopX OTP" <no-reply@shopx.app>`,
     to,
     subject: "Your Login OTP",
     html: `
       <h2>Your OTP Code</h2>
-      <h1>${otp}</h1>
-      <p>Valid for 5 minutes</p>
+      <h1 style="font-size:32px;">${otp}</h1>
+      <p>This OTP is valid for 5 minutes.</p>
     `,
   };
 
-  const result = await transporter.sendMail(mailOptions);
-  console.log(`OTP email sent to ${to}`);
-  return result;
+  return transporter.sendMail(mailOptions);
 };
 
 
