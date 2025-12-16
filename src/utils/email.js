@@ -38,42 +38,35 @@
 //   }
 // };
 
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-const nodemailer = require("nodemailer");
+const client = SibApiV3Sdk.ApiClient.instance;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: process.env.BREVO_SMTP_USER, // must be 'apikey'
-    pass: process.env.BREVO_SMTP_PASS, // xsmtpsib-...
-  },
-});
-
-transporter.verify((err) => {
-  if (err) {
-    console.error("Brevo SMTP error:", err);
-  } else {
-    console.log("Brevo SMTP server is ready");
-  }
-});
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 exports.sendEmail = async (to, otp) => {
-  const mailOptions = {
-    from: `"ShopX OTP" <no-reply@shopx.app>`,
-    to,
-    subject: "Your Login OTP",
-    html: `
-      <h2>Your OTP Code</h2>
-      <h1 style="font-size:32px;">${otp}</h1>
-      <p>This OTP is valid for 5 minutes.</p>
-    `,
-  };
+  try {
+    await apiInstance.sendTransacEmail({
+      sender: {
+        name: "ShopX",
+        email: "no-reply@shopx.app",
+      },
+      to: [{ email: to }],
+      subject: "Your OTP Code",
+      htmlContent: `
+        <h2>Your OTP</h2>
+        <h1>${otp}</h1>
+        <p>Valid for 5 minutes</p>
+      `,
+    });
 
-  return transporter.sendMail(mailOptions);
+    console.log("OTP email sent successfully");
+  } catch (err) {
+    console.error("Brevo API email error:", err);
+    throw err;
+  }
 };
-
 
 
 // const axios = require("axios");
