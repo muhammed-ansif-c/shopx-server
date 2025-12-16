@@ -49,9 +49,10 @@ exports.sendEmail = async (to, otp) => {
   try {
     await apiInstance.sendTransacEmail({
       sender: {
-        name: "ShopX",
-        email: "no-reply@shopx.app",
-      },
+  name: "Joy Brews",
+  email: "ansifmohammad7@gmail.com",
+},
+
       to: [{ email: to }],
       subject: "Your OTP Code",
       htmlContent: `
